@@ -321,14 +321,14 @@ class RAM_plus(nn.Module):
 
         probs = torch.sigmoid(logits)
         topk_values, topk_indices = torch.topk(probs, k=topk, dim=1)
-        print(topk_values, topk_indices) # 이게 
-        tag_output = []
+        # print(topk_values, topk_indices) # 이게 
+        # tag_output = []
         
-        for b in range(bs):
-            token = self.tag_list[topk_indices[b].cpu().numpy()][0]
-            tag_output.append(tuple(token, topk_values[b].cpu().numpy()[0]))
+        # for b in range(bs):
+        #     token = self.tag_list[topk_indices[b].cpu().numpy()][0]
+        #     tag_output.append(tuple(token, topk_values[b].cpu().numpy()[0]))
 
-        return tag_output
+        return topk_values, topk_indices
 
     def generate_tag_openset(self,
                  image,
