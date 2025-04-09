@@ -276,7 +276,16 @@ class RAM_plus(nn.Module):
 
         return loss_tag, loss_dis, loss_alignment
 
+    # 임베딩만 뽑아오는 기능. image_embeds가 tag 추출용, cls_embeds가 분류용
+    def get_image_features(ram_model, image_tensor):
+        image = image_tensor.unsqueeze(0).to(device)
+        with torch.no_grad():
+            image_embeds = ram_model.image_proj(ram_model.visual_encoder(image))
+            cls_embed = image_embeds[:, 0, :]  # (1, 512)
+            image_spatial = image_embeds[:, 1:, :]  # optional
+        return image_embeds, cls_embed.squeeze(0)
 
+    # TODO: Image Embedding으로부터 태그 유사도 추출하는 기능
     def generate_tag(self,
                  image, topk=5
                  ):
@@ -321,12 +330,11 @@ class RAM_plus(nn.Module):
 
         probs = torch.sigmoid(logits)
         topk_values, topk_indices = torch.topk(probs, k=topk, dim=1)
-        # print(topk_values, topk_indices) # 이게 
-        # tag_output = []
+        tag_output = []
         
-        # for b in range(bs):
-        #     token = self.tag_list[topk_indices[b].cpu().numpy()][0]
-        #     tag_output.append(tuple(token, topk_values[b].cpu().numpy()[0]))
+        for b in range(bs):
+            # token = self.tag_list[topk_indices[b].cpu().numpy()][0]
+            # tag_output.append(tuple(token, topk_values[b].cpu().numpy()[0]))
 
         return topk_values, topk_indices
 
