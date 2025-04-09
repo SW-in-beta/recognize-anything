@@ -320,13 +320,13 @@ class RAM_plus(nn.Module):
         logits = self.fc(tagging_embed[0]).squeeze(-1)
 
         probs = torch.sigmoid(logits)
-        topk_values, topk_indices = torch.topk(probs, k=5, dim=1)
-        
+        topk_values, topk_indices = torch.topk(probs, k=topk, dim=1)
+        print(topk_values, topk_indices)
         tag_output = []
         
         for b in range(bs):
             token = self.tag_list[topk_indices[b].cpu().numpy()]
-            tag_output.append(' | '.join(token))
+            tag_output.append(tuple(zip(token, topk_values)))
 
         return tag_output
 
