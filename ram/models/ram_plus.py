@@ -278,7 +278,7 @@ class RAM_plus(nn.Module):
 
 
     def generate_tag(self,
-                 image
+                 image, topk=5
                  ):
 
         image_embeds = self.image_proj(self.visual_encoder(image))
@@ -319,24 +319,16 @@ class RAM_plus(nn.Module):
 
         logits = self.fc(tagging_embed[0]).squeeze(-1)
 
-        targets = torch.where(
-            torch.sigmoid(logits) > self.class_threshold.to(image.device),
-            torch.tensor(1.0).to(image.device),
-            torch.zeros(self.num_class).to(image.device))
-
-        tag = targets.cpu().numpy()
-        tag[:,self.delete_tag_index] = 0
+        probs = torch.sigmoid(logits)
+        topk_values, topk_indices = torch.topk(probs, k=5, dim=1)
+        
         tag_output = []
-        tag_output_chinese = []
+        
         for b in range(bs):
-            index = np.argwhere(tag[b] == 1)
-            token = self.tag_list[index].squeeze(axis=1)
+            token = self.tag_list[topk_indices[b].cpu().numpy()]
             tag_output.append(' | '.join(token))
-            token_chinese = self.tag_list_chinese[index].squeeze(axis=1)
-            tag_output_chinese.append(' | '.join(token_chinese))
 
-
-        return tag_output, tag_output_chinese
+        return tag_output
 
     def generate_tag_openset(self,
                  image,
