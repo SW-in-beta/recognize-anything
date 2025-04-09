@@ -333,9 +333,7 @@ class RAM_plus(nn.Module):
         tag_output = []
         
         for b in range(bs):
-        #     token = self.tag_list[topk_indices[b].cpu().numpy()[0]]
-        #     tag_output.append(tuple(token, topk_values[b].cpu().numpy()[0])]
-            tag_output.append(tuple(topk_indices[b].cpu().numpy(), topk_values[b].cpu().numpy()))
+            tag_output.append([(tag, value) for tag, value in zip(self.tag_list[topk_indices[b].cpu().numpy()], topk_values[b].cpu().detach().numpy())])
 
         return topk_values, topk_indices
 
