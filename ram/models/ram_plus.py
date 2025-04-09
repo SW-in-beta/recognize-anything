@@ -277,10 +277,10 @@ class RAM_plus(nn.Module):
         return loss_tag, loss_dis, loss_alignment
 
     # 임베딩만 뽑아오는 기능. image_embeds가 tag 추출용, cls_embeds가 분류용
-    def get_image_features(ram_model, image_tensor):
+    def get_image_features(self, image_tensor):
         image = image_tensor.unsqueeze(0).to(device)
         with torch.no_grad():
-            image_embeds = ram_model.image_proj(ram_model.visual_encoder(image))
+            image_embeds = self.image_proj(self.visual_encoder(image))
             cls_embed = image_embeds[:, 0, :]  # (1, 512)
             image_spatial = image_embeds[:, 1:, :]  # optional
         return image_embeds, cls_embed.squeeze(0)
